@@ -20,12 +20,19 @@ defmodule GameOfLife.Cell do
   end
 
   def dead_neighbours(alive_cells) do
-    neighbours = neighbours(alive_cells, [])
+    neighbours = neighbours(alive_cells)
     MapSet.difference(neighbours, alive_cells)
   end
 
-  defp neighbours(stuff, array) do
-    array
+  defp neighbours(cells) do
+    offsets = [{-1, -1}, {-1, 0}, {-1, 1}, {0, -1},
+               {0, 1}, {1, -1}, {1, 0}, {1, 1}]
+    Enum.reduce(cells, MapSet.new, fn({x, y}, grid) ->
+      Enum.reduce(offsets, grid, fn({x_off, y_off}, grid2) ->
+        Set.put(grid2, {x + x_off, y + y_off})
+      end)
+    end)
   end
 
 end
+

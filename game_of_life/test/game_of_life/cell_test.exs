@@ -45,7 +45,7 @@ defmodule GameOfLife.CellTest do
 
   test "find dead cells (neighbours of alive cell)" do
     alive_cells = MapSet.new([{1, 1}])
-    dead_neighbours = GameOfLife.Cell.dead_neighbours(alive_cells) |> Enum.sort
+    dead_neighbours = GameOfLife.Cell.dead_neighbours(alive_cells)
     expected_dead_neighbours = MapSet.new([
       {0, 0}, {1, 0}, {2, 0},
       {0, 1}, {2, 1},
@@ -56,12 +56,13 @@ defmodule GameOfLife.CellTest do
 
   test "find dead cells (neighbours of alive cells)" do
     alive_cells = MapSet.new([{1, 1}, {2, 1}])
-    dead_neighbours = GameOfLife.Cell.dead_neighbours(alive_cells) |> Enum.sort
+    dead_neighbours = GameOfLife.Cell.dead_neighbours(alive_cells)
     expected_dead_neighbours = MapSet.new([
-      {0, 0}, {1, 0}, {2, 0}, {3, 0}
+      {0, 0}, {1, 0}, {2, 0}, {3, 0},
       {0, 1}, {3, 1},
       {0, 2}, {1, 2}, {2, 2}, {3, 2}
     ])
     assert MapSet.equal?(dead_neighbours, expected_dead_neighbours)
   end
+
 end
