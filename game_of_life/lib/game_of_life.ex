@@ -6,10 +6,16 @@ defmodule GameOfLife do
   def start(_type, _args) do
     import Supervisor.Spec, warn: false
 
+    init_alive_cells = []
+
     # Define workers and child supervisors to be supervised
     children = [
       # Starts a worker by calling: GameOfLife.Worker.start_link(arg1, arg2, arg3)
       # worker(GameOfLife.Worker, [arg1, arg2, arg3]),
+      supervisor(Task.Supervisor, [[name: GameOfLife.TaskSupervisor]]),
+      worker(GameOfLife.BoardServer, [init_alive_cells]),
+
+      # worker(GameOfLife.GamePrinter, [])
     ]
 
     # See http://elixir-lang.org/docs/stable/elixir/Supervisor.html
