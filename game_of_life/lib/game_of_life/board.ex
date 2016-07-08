@@ -1,11 +1,10 @@
 defmodule GameOfLife.Board do
   def add_cells(alive_cells, new_cells) do
-    alive_cells ++ new_cells
-    |> Enum.uniq
+    MapSet.union alive_cells, new_cells
   end
 
   def remove_cells(alive_cells, kill_cells) do
-    alive_cells -- kill_cells
+    MapSet.difference alive_cells, kill_cells
   end
 
   @doc "Returns cells that should still live on the next generation"
@@ -13,9 +12,10 @@ defmodule GameOfLife.Board do
     alive_cells
     |> Enum.map(&(Task.Supervisor.async(
               {GameOfLife.TaskSupervisor, GameOfLife.NodeManager.random_node},
-            GameOfLife, :keep_alive_or_nilify, [alive_cells, &1])))
+            GameOfLife.Board, :keep_alive_or_nilify, [alive_cells, &1])))
     |> Enum.map(&Task.await/1)
     |> remove_nil_cells
+    |> MapSet.new
   end
 
   def keep_alive_or_nilify(alive_cells, cell) do
@@ -34,6 +34,7 @@ defmodule GameOfLife.Board do
         GameOfLife.Board, :become_alive_or_nilify, [alive_cells, &1])))
     |> Enum.map(&Task.await/1)
     |> remove_nil_cells
+    |> MapSet.new
   end
 
   def become_alive_or_nilify(alive_cells, dead_cell) do
