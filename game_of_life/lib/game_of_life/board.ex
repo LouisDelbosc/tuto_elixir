@@ -9,6 +9,8 @@ defmodule GameOfLife.Board do
 
   @doc "Returns cells that should still live on the next generation"
   def keep_alive_tick(alive_cells) do
+    IO.puts 'coucou'
+    IO.inspect alive_cells
     alive_cells
     |> Enum.map(&(Task.Supervisor.async(
               {GameOfLife.TaskSupervisor, GameOfLife.NodeManager.random_node},
