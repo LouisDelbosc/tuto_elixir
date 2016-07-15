@@ -15,7 +15,7 @@ defmodule GameOfLife do
       supervisor(Task.Supervisor, [[name: GameOfLife.TaskSupervisor]]),
       worker(GameOfLife.BoardServer, [init_alive_cells]),
 
-      # worker(GameOfLife.GamePrinter, [])
+      worker(GameOfLife.GamePrinter, [])
     ]
 
     # See http://elixir-lang.org/docs/stable/elixir/Supervisor.html
