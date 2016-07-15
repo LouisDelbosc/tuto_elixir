@@ -17,15 +17,6 @@ defmodule GameOfLife.BoardServer do
   iex> GameOfLife.BoardServer.stop_game
   :game_stoped
 
-  iex> GameOfLife.BoardServer.generation_counter
-  0
-  iex> GameOfLife.BoardServer.tick
-  :ok
-  iex> GameOfLife.BoardServer.generation_counter
-  1
-  iex> GameOfLife.BoardServer.state
-  {[], 1}
-
   """
 
 
@@ -114,7 +105,7 @@ defmodule GameOfLife.BoardServer do
   end
 
   def handle_call({:start_game, speed}, _from, {alive_cells, nil = _tref, generation_counter}) do
-    {:ok, tref} = :timer.apply_interval(speed, __MODULE__, :tick, [])
+    {:ok, tref} = :timer.apply_interval(speed, __MODULE__, :tick, MapSet.new([]))
     {:reply, :game_started, {alive_cells, tref, generation_counter}}
   end
 
@@ -134,11 +125,11 @@ defmodule GameOfLife.BoardServer do
   def handle_cast(:tick, {alive_cells, tref, generation_counter}) do
     keep_alive_task = Task.Supervisor.async(
       {GameOfLife.TaskSupervisor, GameOfLife.NodeManager.random_node},
-      GameOfLife.Board, :keep_alive_tick, MapSet.new(alive_cells)
+      GameOfLife.Board, :keep_alive_tick, [alive_cells]
     )
     become_alive_task = Task.Supervisor.async(
       {GameOfLife.TaskSupervisor, GameOfLife.NodeManager.random_node},
-      GameOfLife.Board, :become_alive_tick, MapSet.new(alive_cells)
+      GameOfLife.Board, :become_alive_tick, [alive_cells]
     )
     keep_alive_cells = Task.await(keep_alive_task)
     born_cells = Task.await(become_alive_task)
@@ -146,4 +137,5 @@ defmodule GameOfLife.BoardServer do
     alive_cells = MapSet.union keep_alive_cells, born_cells
     {:noreply, {alive_cells, tref, generation_counter + 1}}
   end
+
 end
